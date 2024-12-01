@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#000000"
+    android:padding="10dp">
+
+    <Button android:id="@+id/color_white" style="@style/colorButtonStyle" android:background="#FFFFFF"/>
+    <Button android:id="@+id/color_yellow" style="@style/colorButtonStyle" android:background="#FFFF00"/>
+    <Button android:id="@+id/color_pink" style="@style/colorButtonStyle" android:background="#FFC0CB"/>
+    <Button android:id="@+id/color_blue" style="@style/colorButtonStyle" android:background="#ADD8E6"/>
+    <Button android:id="@+id/color_green" style="@style/colorButtonStyle" android:background="#98FB98"/>
+    <!-- Add more color buttons as needed -->
+
+</LinearLayout>
