@@ -46,10 +46,10 @@
 ### 4.清除所有笔记
 	要实现清除所有笔记功能，首先需在list_options_menu添加以下对应选项Item：
 ![Alt Text](./4-1.png)
-之后在onOptionsItemSelected函数中添加以下代码来处理新的菜单项，并完成对应方法：
+	之后在onOptionsItemSelected函数中添加以下代码来处理新的菜单项，并完成对应方法：
 ![Alt Text](./4-2.png)
 ![Alt Text](./4-3.png)
-如图，Clear All菜单项调用了clearAllNotes方法，在其中生成了一个确认框并完成了对应的点击事件。下面演示最终成果，图4-4为菜单选项，4-5为点击菜单项后的对应确认框，4-6为清除结果。
+	如图，Clear All菜单项调用了clearAllNotes方法，在其中生成了一个确认框并完成了对应的点击事件。下面演示最终成果，图4-4为菜单选项，4-5为点击菜单项后的对应确认框，4-6为清除结果。
 ![Alt Text](./4-4.png)
 ![Alt Text](./4-5.png)
 ![Alt Text](./4-6.png)
