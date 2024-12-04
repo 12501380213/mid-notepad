@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +52,10 @@ import android.widget.TextView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
@@ -408,8 +413,17 @@ public class NotesList extends ListActivity {
           startActivity(new Intent(Intent.ACTION_PASTE, getIntent().getData()));
           return true;
 
-            case R.id.action_change_color:
-                showDialog();
+            case R.id.menu_sort_alphabetically:
+                sortNotesAlphabetically();
+                return true;
+
+
+            case R.id.menu_reset_sorting:
+                resetToDefaultSorting();
+                return true;
+
+            case R.id.menu_clear_all:
+                clearAllNotes();
                 return true;
 
             default:
@@ -417,21 +431,129 @@ public class NotesList extends ListActivity {
         }
     }
 
-    public void showDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.color_picker_dialog, null);
-        builder.setView(dialogView);
+    private void sortNotesAlphabetically() {
+        Cursor cursor = (Cursor) getListAdapter().getItem(0);
+        if (cursor != null) {
+            String[] titles = new String[cursor.getCount()];
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.moveToPosition(i);
+                titles[i] = cursor.getString(cursor.getColumnIndex(NotePad.Notes.COLUMN_NAME_TITLE));
+            }
+
+            Arrays.sort(titles, String.CASE_INSENSITIVE_ORDER);
+
+            MatrixCursor sortedCursor = new MatrixCursor(new String[]{NotePad.Notes._ID, NotePad.Notes.COLUMN_NAME_TITLE,
+                    NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE});
+            for (String title : titles) {
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    if (cursor.getString(cursor.getColumnIndex(NotePad.Notes.COLUMN_NAME_TITLE)).equals(title)) {
+                        sortedCursor.addRow(new Object[]{cursor.getLong(cursor.getColumnIndex(NotePad.Notes._ID)), title,
+                                cursor.getLong(cursor.getColumnIndex(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE))});
+                        break;
+                    }
+                    cursor.moveToNext();
+                }
+            }
+
+            SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+                    this,
+                    R.layout.noteslist_item,
+                    sortedCursor,
+                    new String[]{NotePad.Notes.COLUMN_NAME_TITLE, NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE},
+                    new int[]{R.id.tv_title, R.id.tv_date},
+                    0
+            );
+
+            // 设置适配器的视图绑定器，用于格式化日期
+            adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+                public boolean setViewValue(View aView, Cursor aCursor, int aColumnIndex) {
+                    if (aView.getId() == R.id.tv_date) {
+                        String date = aCursor.getString(aColumnIndex);
+                        String formattedDate = formatDate(Long.parseLong(date));
+                        ((TextView) aView).setText(formattedDate);
+                        return true;
+                    }
+                    return false;
+                }
+
+                private String formatDate(long seconds) {
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss aa", Locale.getDefault());
+                    Date date = new Date(seconds * 1L); // 注意：Date构造函数需要毫秒值，所以乘以1000
+                    return outputFormat.format(date);
+                }
+            });
+
+            setListAdapter(adapter);
+        }
+    }
+
+    private void resetToDefaultSorting() {
+        // 刷新笔记列表以回到默认排序
+        refreshNotesList();
+    }
+
+    private void refreshNotesList() {
+        // 使用默认的排序顺序重新查询笔记
+        Cursor cursor = managedQuery(
+                NotePad.Notes.CONTENT_URI, // Use the default content URI for the provider.
+                PROJECTION,              // Return the note ID and title for each note.
+                null,                    // No where clause, return all records.
+                null,                    // No where clause, therefore no where column values.
+                NotePad.Notes.DEFAULT_SORT_ORDER // Use the default sort order.
+        );
+
+        // 更新ListView的适配器
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+                this,
+                R.layout.noteslist_item,
+                cursor,
+                new String[]{NotePad.Notes.COLUMN_NAME_TITLE, NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE},
+                new int[]{R.id.tv_title, R.id.tv_date},
+                0
+        );
+
+        // 设置适配器的视图绑定器，用于格式化日期
+        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            public boolean setViewValue(View aView, Cursor aCursor, int aColumnIndex) {
+                if (aView.getId() == R.id.tv_date) {
+                    String date = aCursor.getString(aColumnIndex);
+                    String formattedDate = formatDate(Long.parseLong(date));
+                    ((TextView) aView).setText(formattedDate);
+                    return true;
+                }
+                return false;
+            }
+
+            private String formatDate(long seconds) {
+                SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss aa", Locale.getDefault());
+                Date date = new Date(seconds);
+                return outputFormat.format(date);
+            }
+        });
+
+        setListAdapter(adapter);
+    }
 
 
-
-        builder.setNegativeButton("Cancel", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        // Set initial color selection
-        setInitialColorSelection(dialogView);
+    private void clearAllNotes() {
+        // 确认用户真的想要删除所有笔记
+        new AlertDialog.Builder(this)
+                .setTitle("Clear All Notes")
+                .setMessage("Are you sure you want to delete all notes?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // 删除所有笔记
+                        int rowsDeleted = getContentResolver().delete(NotePad.Notes.CONTENT_URI, null, null);
+                        Log.d(TAG, "Rows deleted: " + rowsDeleted);
+                        // 刷新列表或关闭活动
+                        finish();
+                        startActivity(getIntent());
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     private void setInitialColorSelection(View dialogView) {

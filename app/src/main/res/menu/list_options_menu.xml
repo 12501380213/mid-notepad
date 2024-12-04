@@ -21,9 +21,23 @@
           android:title="@string/menu_paste"
           android:alphabeticShortcut='p' />
 
-    <item android:id="@+id/action_change_color"
-        android:icon="@drawable/ic_menu_compose"
-        android:title="Change color"
-        android:alphabeticShortcut='p' />
+    <item
+        android:id="@+id/menu_sort_alphabetically"
+        android:title="Sort Alphabetically"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_reset_sorting"
+        android:title="Reset to Default Sorting"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_clear_all"
+        android:title="Clear All"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
 
 </menu>

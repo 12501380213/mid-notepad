@@ -1,6 +1,6 @@
 ## 项目简介
 
-### 1. 本项目为安卓期中实验--NotePad记事本应用，仅完成了基础的时间戳显示和根据内容或标题查询功能，未完成任何拓展功能。
+### 1. 本项目为安卓期中实验--NotePad记事本应用，完成了基础的时间戳显示和根据内容或标题查询功能，拓展功能为切换默认排序/按首字母排序和清空所有笔记。
 
 ## 功能介绍
 
@@ -29,3 +29,27 @@
 ![Alt Text](./2-6.png)
 ![Alt Text](./2-7.png)
 ![Alt Text](./2-8.png)
+
+### 3.切换排序
+	要实现切换排序功能，首先需在list_options_menu添加以下两个对应选项Item，前者为按首字母排序，后者为切换默认排序：
+![Alt Text](./3-1.png)
+	之后在onOptionsItemSelected函数中添加以下代码来处理新的菜单项，并完成对应方法：
+![Alt Text](./3-2.png)
+![Alt Text](./3-3.png)
+![Alt Text](./3-4.png)
+![Alt Text](./3-5.png)
+![Alt Text](./3-6.png)
+	如图，两菜单项分别调用了sortNotesAlphabetically和resetToDefaultSorting方法，在其中修改了排序并实例化适配器。下面演示最终成果，图3-7为菜单选项和默认排序，3-8为首字母排序选项结果，3-9为还原默认排序结果。
+![Alt Text](./3-7.png)
+![Alt Text](./3-8.png)
+![Alt Text](./3-9.png)
+### 4.清除所有笔记
+	要实现清除所有笔记功能，首先需在list_options_menu添加以下对应选项Item：
+![Alt Text](./4-1.png)
+之后在onOptionsItemSelected函数中添加以下代码来处理新的菜单项，并完成对应方法：
+![Alt Text](./4-2.png)
+![Alt Text](./4-3.png)
+如图，Clear All菜单项调用了clearAllNotes方法，在其中生成了一个确认框并完成了对应的点击事件。下面演示最终成果，图4-4为菜单选项，4-5为点击菜单项后的对应确认框，4-6为清除结果。
+![Alt Text](./4-4.png)
+![Alt Text](./4-5.png)
+![Alt Text](./4-6.png)
